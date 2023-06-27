@@ -27,7 +27,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.issue = exports.issueCommand = void 0;
-const os = __importStar(__nccwpck_require__(37));
+const os = __importStar(__nccwpck_require__(563));
 const utils_1 = __nccwpck_require__(278);
 /**
  * Commands
@@ -138,7 +138,7 @@ exports.getIDToken = exports.getState = exports.saveState = exports.group = expo
 const command_1 = __nccwpck_require__(351);
 const file_command_1 = __nccwpck_require__(717);
 const utils_1 = __nccwpck_require__(278);
-const os = __importStar(__nccwpck_require__(37));
+const os = __importStar(__nccwpck_require__(563));
 const path = __importStar(__nccwpck_require__(17));
 const oidc_utils_1 = __nccwpck_require__(41);
 /**
@@ -435,7 +435,7 @@ Object.defineProperty(exports, "markdownSummary", ({ enumerable: true, get: func
 /**
  * Path exports
  */
-var path_utils_1 = __nccwpck_require__(937);
+var path_utils_1 = __nccwpck_require__(981);
 Object.defineProperty(exports, "toPosixPath", ({ enumerable: true, get: function () { return path_utils_1.toPosixPath; } }));
 Object.defineProperty(exports, "toWin32Path", ({ enumerable: true, get: function () { return path_utils_1.toWin32Path; } }));
 Object.defineProperty(exports, "toPlatformPath", ({ enumerable: true, get: function () { return path_utils_1.toPlatformPath; } }));
@@ -473,7 +473,7 @@ exports.prepareKeyValueMessage = exports.issueFileCommand = void 0;
 // We use any as a valid input type
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const fs = __importStar(__nccwpck_require__(147));
-const os = __importStar(__nccwpck_require__(37));
+const os = __importStar(__nccwpck_require__(563));
 const uuid_1 = __nccwpck_require__(840);
 const utils_1 = __nccwpck_require__(278);
 function issueFileCommand(command, message) {
@@ -592,7 +592,7 @@ exports.OidcClient = OidcClient;
 
 /***/ }),
 
-/***/ 937:
+/***/ 981:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -673,7 +673,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.summary = exports.markdownSummary = exports.SUMMARY_DOCS_URL = exports.SUMMARY_ENV_VAR = void 0;
-const os_1 = __nccwpck_require__(37);
+const os_1 = __nccwpck_require__(563);
 const fs_1 = __nccwpck_require__(147);
 const { access, appendFile, writeFile } = fs_1.promises;
 exports.SUMMARY_ENV_VAR = 'GITHUB_STEP_SUMMARY';
@@ -2135,7 +2135,7 @@ var _version = _interopRequireDefault(__nccwpck_require__(595));
 
 var _validate = _interopRequireDefault(__nccwpck_require__(900));
 
-var _stringify = _interopRequireDefault(__nccwpck_require__(981));
+var _stringify = _interopRequireDefault(__nccwpck_require__(950));
 
 var _parse = _interopRequireDefault(__nccwpck_require__(746));
 
@@ -2316,7 +2316,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 981:
+/***/ 950:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -2375,7 +2375,7 @@ exports["default"] = void 0;
 
 var _rng = _interopRequireDefault(__nccwpck_require__(807));
 
-var _stringify = _interopRequireDefault(__nccwpck_require__(981));
+var _stringify = _interopRequireDefault(__nccwpck_require__(950));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -2511,7 +2511,7 @@ Object.defineProperty(exports, "__esModule", ({
 exports["default"] = _default;
 exports.URL = exports.DNS = void 0;
 
-var _stringify = _interopRequireDefault(__nccwpck_require__(981));
+var _stringify = _interopRequireDefault(__nccwpck_require__(950));
 
 var _parse = _interopRequireDefault(__nccwpck_require__(746));
 
@@ -2597,7 +2597,7 @@ exports["default"] = void 0;
 
 var _rng = _interopRequireDefault(__nccwpck_require__(807));
 
-var _stringify = _interopRequireDefault(__nccwpck_require__(981));
+var _stringify = _interopRequireDefault(__nccwpck_require__(950));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -2759,7 +2759,7 @@ module.exports = require("net");
 
 /***/ }),
 
-/***/ 37:
+/***/ 563:
 /***/ ((module) => {
 
 "use strict";
@@ -2849,7 +2849,110 @@ __nccwpck_require__.r(__webpack_exports__);
 
 // EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
 var core = __nccwpck_require__(186);
+;// CONCATENATED MODULE: ./src/configuration.js
+
+
+const requiredInputs = {
+  accessToken: 'access-token',
+  projectKey: 'project-key',
+  environmentKey: 'environment-key',
+  baseUri: 'base-uri',
+  eventType: 'event-type',
+};
+
+const jsonInputs = {
+  eventMetadata: 'event-metadata',
+  deploymentMetadata: 'deployment-metadata',
+};
+
+const eventTypes = ['started', 'finished', 'failed'];
+
+const validate = (args) => {
+  const errors = [];
+
+  for (const arg in requiredInputs) {
+    if (!args[arg]) {
+      const a = requiredInputs[arg];
+      core.error(`${a} is required`);
+      errors.push(a);
+    }
+  }
+
+  if (!eventTypes.includes(args.eventType)) {
+    core.error('Event type must be one of: "started", "finished", "failed"');
+    errors.push('event-type');
+  }
+
+  for (const arg in jsonInputs) {
+    try {
+      JSON.parse(args[arg]);
+    } catch (e) {
+      const a = jsonInputs[arg];
+      core.error(`${a} is invalid json`);
+      errors.push(a);
+    }
+  }
+  return errors;
+};
+
+// EXTERNAL MODULE: ./node_modules/@actions/http-client/lib/index.js
+var lib = __nccwpck_require__(255);
+;// CONCATENATED MODULE: ./src/client.js
+
+
+
+class LDClient {
+  constructor(accessToken, baseUri) {
+    this.client = new lib.HttpClient('deployment-events-action', undefined, {
+      headers: {
+        Authorization: accessToken.toString('base64'),
+      },
+    });
+    this.baseUri = baseUri;
+  }
+
+  async sendDeploymentEvent(
+    projectKey,
+    environmentKey,
+    applicationKey,
+    version,
+    eventType,
+    eventMetadata,
+    deploymentMetadata,
+  ) {
+    const body = {
+      projectKey,
+      environmentKey,
+      applicationKey,
+      version,
+      eventType,
+      eventTime: Date.now(),
+      eventMetadata,
+      deploymentMetadata,
+    };
+
+    try {
+      core.debug(`${this.baseUri}/api/v2/accelerate/deployment-events`);
+      core.debug(body);
+      const res = await this.client.postJson(`${this.baseUri}/api/v2/accelerate/deployment-events`, body);
+
+      if (res.statusCode != 201) {
+        const body = await res.readBody();
+        core.error('Sending deployment failed', body);
+        core.setFailed('Failed');
+      }
+    } catch (e) {
+      console.error(e);
+      core.setFailed(e);
+    }
+
+    return;
+  }
+}
+
 ;// CONCATENATED MODULE: ./src/action.js
+
+
 
 
 const run = async () => {
@@ -2857,7 +2960,60 @@ const run = async () => {
   core.startGroup('Validating arguments');
   const accessToken = core.getInput('access-token');
   core.setSecret(accessToken);
-  // TODO get other inputs
+
+  const projectKey = core.getInput('project-key');
+  const environmentKey = core.getInput('environment-key');
+  let applicationKey = core.getInput('application-key');
+  let version = core.getInput('version');
+  const eventType = core.getInput('event-type');
+  let eventMetadata = core.getInput('event-metadata');
+  let deploymentMetadata = core.getInput('deployment-metadata');
+  const baseUri = core.getInput('base-uri');
+
+  const validationErrors = validate({
+    accessToken,
+    projectKey,
+    environmentKey,
+    applicationKey,
+    version,
+    eventType,
+    eventMetadata,
+    deploymentMetadata,
+    baseUri,
+  });
+  if (validationErrors.length > 0) {
+    core.setFailed(`Invalid arguments: ${validationErrors.join(', ')}`);
+    return;
+  }
+
+  eventMetadata = JSON.parse(eventMetadata);
+  deploymentMetadata = JSON.parse(deploymentMetadata);
+
+  if (!applicationKey) {
+    applicationKey = process.env.GITHUB_REPOSITORY.split('/').pop();
+    core.info(`Setting applicationKey to repository name: ${applicationKey}`);
+  }
+
+  if (!version) {
+    version = process.env.GITHUB_SHA;
+    core.info(`Setting version to SHA: ${version}`);
+  }
+
+  core.endGroup();
+
+  core.startGroup('Send event');
+
+  const client = new LDClient(accessToken, baseUri);
+  await client.sendDeploymentEvent(
+    projectKey,
+    environmentKey,
+    applicationKey,
+    version,
+    eventType,
+    eventMetadata,
+    deploymentMetadata,
+  );
+  core.endGroup();
 
   return;
 };
