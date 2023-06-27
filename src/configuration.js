@@ -22,7 +22,7 @@ const statusToEventType = {
   failure: 'failed',
   cancelled: 'failed',
   skipped: 'failed',
-  error: 'error',
+  error: 'failed',
 };
 
 export const getConfiguration = () => {
