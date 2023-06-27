@@ -4,6 +4,7 @@ const requiredInputs = {
   accessToken: 'access-token',
   projectKey: 'project-key',
   environmentKey: 'environment-key',
+  status: 'status',
   baseUri: 'base-uri',
 };
 
@@ -12,18 +13,77 @@ const jsonInputs = {
   deploymentMetadata: 'deployment-metadata',
 };
 
-const eventTypes = ['started', 'finished', 'failed'];
+// adding pending
+const statuses = ['in_progress', 'success', 'failure', 'cancelled', 'skipped', 'error'];
 
-// no support for skipped
-const outcomes = ['success', 'failure', 'cancelled'];
-
-export const outcomeToEventType = {
+const statusToEventType = {
+  in_progress: 'started',
   success: 'finished',
   failure: 'failed',
   cancelled: 'failed',
+  skipped: 'failed',
+  error: 'error',
 };
 
-export const validate = (args) => {
+export const getConfiguration = () => {
+  const accessToken = core.getInput('access-token');
+  core.setSecret(accessToken);
+  const projectKey = core.getInput('project-key');
+  const environmentKey = core.getInput('environment-key');
+  let applicationKey = core.getInput('application-key');
+  let version = core.getInput('version');
+  let status = core.getInput('status');
+  let eventMetadata = core.getInput('event-metadata');
+  let deploymentMetadata = core.getInput('deployment-metadata');
+  const baseUri = core.getInput('base-uri');
+
+  const validationErrors = validate({
+    accessToken,
+    projectKey,
+    environmentKey,
+    applicationKey,
+    version,
+    status,
+    eventMetadata,
+    deploymentMetadata,
+    baseUri,
+  });
+  if (validationErrors.length > 0) {
+    core.setFailed(`Invalid arguments: ${validationErrors.join(', ')}`);
+    return { hasError: true };
+  }
+
+  eventMetadata = JSON.parse(eventMetadata);
+  deploymentMetadata = JSON.parse(deploymentMetadata);
+
+  if (applicationKey == 'GITHUB_REPO_NAME') {
+    applicationKey = process.env.GITHUB_REPOSITORY.split('/').pop();
+    core.info(`Setting applicationKey to repository name: ${applicationKey}`);
+  }
+
+  if (version == 'GITHUB_SHA') {
+    version = process.env.GITHUB_SHA;
+    core.info(`Setting version to SHA: ${version}`);
+  }
+
+  const eventType = statusToEventType[status];
+  core.info(`Setting event type to ${eventType}, from status ${status}`);
+
+  return {
+    accessToken,
+    projectKey,
+    environmentKey,
+    applicationKey,
+    version,
+    eventType,
+    eventMetadata,
+    deploymentMetadata,
+    baseUri,
+    hasError: false,
+  };
+};
+
+const validate = (args) => {
   const errors = [];
 
   for (const arg in requiredInputs) {
@@ -34,20 +94,11 @@ export const validate = (args) => {
     }
   }
 
-  if (!args.eventType && !args.outcome) {
-    core.error('Event type or outcome required.');
-    errors.push('event-type');
-    errors.push('outcome');
-  }
-
-  if (args.eventType && !eventTypes.includes(args.eventType)) {
-    core.error('Event type must be one of: "started", "finished", "failed"');
-    errors.push('event-type');
-  }
-
-  if (args.outcome && !outcomes.includes(args.outcome)) {
-    core.error('Outcome must be one of: "success", "failure", "cancelled"');
-    errors.push('outcome');
+  if (!statuses.includes(args.status)) {
+    core.error(
+      `status must be one of: "in_progress", "success", "failure", "cancelled", "skipped", but is "${args.status}"`,
+    );
+    errors.push('status');
   }
 
   for (const arg in jsonInputs) {
@@ -59,5 +110,5 @@ export const validate = (args) => {
       errors.push(a);
     }
   }
-  return new Set(errors);
+  return errors;
 };

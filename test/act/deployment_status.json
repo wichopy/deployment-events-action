@@ -1,0 +1,6 @@
+{
+  "deployment_status": {
+    "state": "in_progress",
+    "environment": "test"
+  }
+}
