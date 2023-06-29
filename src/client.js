@@ -17,6 +17,7 @@ export default class LDClient {
     applicationKey,
     version,
     eventType,
+    eventTime,
     eventMetadata,
     deploymentMetadata,
   ) {
@@ -26,13 +27,13 @@ export default class LDClient {
       applicationKey,
       version,
       eventType,
-      eventTime: Date.now(),
+      eventTime,
       eventMetadata,
       deploymentMetadata,
     };
 
     try {
-      core.info(JSON.stringify(body, null, 4));
+      core.notice(`Sending deployment event:\n${JSON.stringify(body, null, 4)}`);
       const res = await this.client.postJson(`${this.baseUri}/api/v2/accelerate/deployment-events`, body);
 
       if (res.statusCode != 201) {

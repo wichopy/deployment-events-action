@@ -35,6 +35,7 @@ export const getConfiguration = () => {
   let eventMetadata = core.getInput('event-metadata');
   let deploymentMetadata = core.getInput('deployment-metadata');
   const baseUri = core.getInput('base-uri');
+  const eventTimeString = core.getInput('event-time');
 
   const validationErrors = validate({
     accessToken,
@@ -46,6 +47,7 @@ export const getConfiguration = () => {
     eventMetadata,
     deploymentMetadata,
     baseUri,
+    eventTimeString,
   });
   if (validationErrors.length > 0) {
     core.setFailed(`Invalid arguments: ${validationErrors.join(', ')}`);
@@ -73,6 +75,9 @@ export const getConfiguration = () => {
     return { unsupportedStatus: true };
   }
 
+  const eventTime = eventTimeString === 'NOW' ? Date.now() : Date.parse(eventTimeString);
+  core.info(`Setting event time to ${eventTime}`);
+
   return {
     accessToken,
     projectKey,
@@ -83,6 +88,7 @@ export const getConfiguration = () => {
     eventMetadata,
     deploymentMetadata,
     baseUri,
+    eventTime,
     hasError: false,
     unsupportedStatus: false,
   };
@@ -115,5 +121,11 @@ const validate = (args) => {
       errors.push(a);
     }
   }
+
+  if (args.eventTimeString !== 'NOW' && isNaN(Date.parse(args.eventTimeString))) {
+    core.error(`event-time is invalid datetime string "${args.eventTimeString}"`);
+    errors.push('event-time');
+  }
+
   return errors;
 };

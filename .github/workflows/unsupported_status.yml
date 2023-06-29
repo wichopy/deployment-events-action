@@ -1,7 +1,7 @@
 # Run test file with command:
 #   act deployment_status -e test/act/deployment_status.json
 
-name: Test deployment_status
+name: Test unsupported deployment_status
 on: deployment_status
 
 jobs:
